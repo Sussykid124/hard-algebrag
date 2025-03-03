@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>v86 Linux Mint Emulator</title>
+    <!-- Include the v86 emulator library (v86all.js) and ensure v86.wasm is in the same directory or adjust path -->
+    <script src="v86all.js"></script>
+    <style>
+      #emulator {
+        width: 800px;
+        height: 600px;
+        border: 1px solid #ccc;
+        margin-top: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Linux Mint Live Boot Emulator</h1>
+    <p>Select the necessary files from your PC:</p>
+    <div>
+      <label for="bios">BIOS (.bin):</label>
+      <input type="file" id="bios" accept=".bin">
+    </div>
+    <div>
+      <label for="vga_bios">VGA BIOS (.bin):</label>
+      <input type="file" id="vga_bios" accept=".bin">
+    </div>
+    <div>
+      <label for="kernel">Kernel (if required):</label>
+      <input type="file" id="kernel" accept=".bin,.img">
+    </div>
+    <div>
+      <label for="cdrom">Linux Mint ISO (or disk image):</label>
+      <input type="file" id="cdrom" accept=".iso,.img">
+    </div>
+    <button id="start">Start Emulator</button>
+    
+    <!-- Container where the emulator display will be attached -->
+    <div id="emulator"></div>
+    
+    <script>
+      // Utility function to get an object URL for a selected file
+      function getFileURL(elementId) {
+        var input = document.getElementById(elementId);
+        return (input.files.length > 0) ? URL.createObjectURL(input.files[0]) : null;
+      }
+      
+      document.getElementById("start").addEventListener("click", function () {
+        // Retrieve file URLs from the input fields
+        var bios_url = getFileURL("bios");
+        var vga_bios_url = getFileURL("vga_bios");
+        var kernel_url = getFileURL("kernel"); // Optional, depending on your setup
+        var cdrom_url = getFileURL("cdrom");
+        
+        // Validate that the mandatory files are selected
+        if (!bios_url || !vga_bios_url || !cdrom_url) {
+          alert("Please select the BIOS, VGA BIOS, and Linux Mint ISO files.");
+          return;
+        }
+        
+        // Create the emulator instance with your options.
+        // Adjust memory_size or add other options as needed.
+        var emulator = new V86Starter({
+          wasm_path: "v86.wasm", // Ensure this file is available
+          memory_size: 128 * 1024 * 1024, // 128MB of RAM; adjust as needed
+          bios: { url: bios_url },
+          vga_bios: { url: vga_bios_url },
+          // Optionally load a kernel if you prefer direct booting over ISO booting:
+          kernel: kernel_url ? { url: kernel_url } : undefined,
+          cdrom: { url: cdrom_url },
+          autostart: true,
+          screen_container: document.getElementById("emulator")
+        });
+        
+        emulator.add_listener("emulator-ready", function () {
+          console.log("Emulator is ready.");
+        });
+      });
+    </script>
+  </body>
+</html>
