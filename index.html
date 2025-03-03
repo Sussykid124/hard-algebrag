@@ -2,9 +2,9 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>v86 OS Emulator</title>
-    <!-- Include the v86 emulator library (v86all.js) and ensure v86.wasm is in the same directory or adjust path -->
-    <script src="v86all.js"></script>
+    <title>v86 Linux Mint Emulator</title>
+    <!-- Include the v86 emulator library (libv86.js) -->
+    <script src="libv86.js"></script>
     <style>
       #emulator {
         width: 800px;
@@ -15,7 +15,7 @@
     </style>
   </head>
   <body>
-    <h1>OS Live Boot Emulator</h1>
+    <h1>Linux Mint Live Boot Emulator</h1>
     <p>Select the necessary files from your PC:</p>
     <div>
       <label for="bios">BIOS (.bin):</label>
@@ -30,7 +30,7 @@
       <input type="file" id="kernel" accept=".bin,.img">
     </div>
     <div>
-      <label for="cdrom">OS ISO (or disk image):</label>
+      <label for="cdrom">Linux Mint ISO (or disk image):</label>
       <input type="file" id="cdrom" accept=".iso,.img">
     </div>
     <button id="start">Start Emulator</button>
@@ -44,34 +44,34 @@
         var input = document.getElementById(elementId);
         return (input.files.length > 0) ? URL.createObjectURL(input.files[0]) : null;
       }
-      
+
       document.getElementById("start").addEventListener("click", function () {
         // Retrieve file URLs from the input fields
         var bios_url = getFileURL("bios");
         var vga_bios_url = getFileURL("vga_bios");
-        var kernel_url = getFileURL("kernel"); // Optional, depending on your setup
+        var kernel_url = getFileURL("kernel"); // Optional, if you prefer a kernel image
         var cdrom_url = getFileURL("cdrom");
-        
-        // Validate that the mandatory files are selected
+
+        // Validate mandatory files
         if (!bios_url || !vga_bios_url || !cdrom_url) {
-          alert("Please select the BIOS, VGA BIOS, and Linux Mint ISO files.");
+          alert("Please select the BIOS, VGA BIOS, and ISO files.");
           return;
         }
-        
-        // Create the emulator instance with your options.
-        // Adjust memory_size or add other options as needed.
-        var emulator = new V86Starter({
-          wasm_path: "v86.wasm", // Ensure this file is available
-          memory_size: 128 * 1024 * 1024, // 128MB of RAM; adjust as needed
+
+        // Create the emulator instance
+        var emulator = new V86({
+          // Adjust this path if v86.wasm is located elsewhere
+          wasm_path: "v86.wasm",
+          memory_size: 128 * 1024 * 1024, // 128MB
           bios: { url: bios_url },
           vga_bios: { url: vga_bios_url },
-          // Optionally load a kernel if you prefer direct booting over ISO booting:
+          // Optional kernel if you want direct kernel booting
           kernel: kernel_url ? { url: kernel_url } : undefined,
           cdrom: { url: cdrom_url },
           autostart: true,
           screen_container: document.getElementById("emulator")
         });
-        
+
         emulator.add_listener("emulator-ready", function () {
           console.log("Emulator is ready.");
         });
